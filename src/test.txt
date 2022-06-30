@@ -1,0 +1,2 @@
+@info
+@attribute atributo1 numeric
