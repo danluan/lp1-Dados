@@ -1,2 +1,7 @@
 @info
-@attribute atributo1 numeric
+@attribute att1 numeric
+@attribute exemplo_conj {1  ,    "2", desconhecido   }
+@data
+1, 2, 1, "outro valor"
+5, 5, desconhecido, "valor com espaco"
+0, 0, ?, ?
