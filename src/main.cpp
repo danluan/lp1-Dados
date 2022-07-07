@@ -5,7 +5,7 @@ int main(){
 
     Data test;
 
-    startReadFiles(test);
-
+    test.startReadFiles();
+    
     return 0;
 }

@@ -14,7 +14,7 @@ class AttributeNum{ //
 class AttributeCat{
     int indexColC;
     std::string name;
-    std::vector<std::string> attributeCats;
+    std::string attributeCats;
 
     AttributeCat(std::string name_, int index_);
     void addAttributeCats(std::string setOfCategories);
@@ -31,9 +31,24 @@ class ObjectRow{
     ObjectRow();
 };
 
-class Data{
-    std::vector<std::string> attributesList; //List of {CAT, NUM, NUM ... }
-    std::vector<ObjectRow> objects;
+class Attributes{
+public:
+    std::vector<std::string> attribute; //attribute is sigleton, numeric, else is categoric
+    std::string name;
+
+    Attributes(std::string name_);
 };
 
-void startReadFiles(Data newRead);
+class Data{
+public:
+    std::vector<Attributes> attributesList; //List of {CAT, NUM, NUM ... }
+    std::vector<ObjectRow> objects;
+
+    void startReadFiles();
+    bool addAttributeInList(std::string line);
+
+};
+
+std::string cutSpaces(std::string str);
+std::string cutScrap(std::string str);
+std::vector<std::string> split(std::string str);

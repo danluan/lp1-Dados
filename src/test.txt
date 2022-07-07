@@ -1,6 +1,8 @@
 @info
 @attribute att1 numeric
-@attribute exemplo_conj {1  ,    "2", desconhecido   }
+@attribute novo_atributo numeric
+@attribute exemplo_conj {1 , "2", desconhecido }
+@attribute complexo {"valor com espaco", "outro valor"}
 @data
 1, 2, 1, "outro valor"
 5, 5, desconhecido, "valor com espaco"
