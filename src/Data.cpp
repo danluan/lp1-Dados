@@ -1,17 +1,22 @@
 #include "Data.hpp"
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 AttributeNum::AttributeNum(std::string name_, int index_){
     indexColN = index_;
     name = name_;
 }
-
+ObjectRow::ObjectRow(int index_){
+    indexRow = index_;
+}
 AttributeCat::AttributeCat(std::string name_, int index_){
     indexColC = index_;
     name = name_;
 }
-
+Attributes::Attributes(std::string name_){
+    name = name_;
+}
 void Data::startReadFiles(){
 
     std::ifstream file;
@@ -23,7 +28,6 @@ void Data::startReadFiles(){
 
         while(line != "@info" && !file.eof()){
             getline(file, line);
-            std::cout << row << "-" << line << std::endl;
             row++;
         }
         if(file.eof()){
@@ -35,35 +39,43 @@ void Data::startReadFiles(){
         std::string buffer;
         while(buffer != "@data" && !file.eof()){
             file.get(pointer);
-            buffer.push_back(pointer);
-            //std::cout << row << "-" << buffer << std::endl;
-            
+            buffer.push_back(pointer);            
             if(pointer == '\n'){
-                buffer = "";
+                buffer.clear();
                 row++;
             }
-
             if(buffer == "@attribute"){
-                buffer = "";
+                buffer.clear();
                 getline(file, buffer);
-                std::cout << "Achô '" << buffer << "'" << std::endl;
                 if(addAttributeInList(buffer)){
                     buffer = "";
                     row++;
                 } else {
                     break;
                 }
+            }
+        }
+        getline(file, buffer);
+        if(file.eof()){
+            std::cout << "ERRO C" << row << " - @data not found." << std::endl;
+        }
+        int index = 0;
+        while(!file.eof()){
+            getline(file, buffer);
+            
+            if(addAttributeData(buffer, index)){
                 
+                buffer.clear();
+                index++;
+            } else {
+
             }
         }
         
     }
 }
-Attributes::Attributes(std::string name_){
-    name = name_;
-}
-bool Data::addAttributeInList(std::string line){
-    
+
+bool Data::addAttributeInList(std::string line){   
     line = cutSpaces(line);
     std::string name;
     if(line[line.size()-1] != '}'){ //Ser numerico 
@@ -71,9 +83,7 @@ bool Data::addAttributeInList(std::string line){
             name.push_back(line[i]);
         }
         Attributes attbNUM(name);
-        attbNUM.attribute.push_back("Numeric");
-        std::cout << "Attb '" << name << "'" << std::endl;
-        std::cout << "Type '" << "Numeric" << "'" << std::endl;
+        attbNUM.attribute.push_back("Numeric--");
         attributesList.push_back(attbNUM);
     } else {
         int i = 0;
@@ -82,16 +92,86 @@ bool Data::addAttributeInList(std::string line){
         }
         line.erase(line.begin(),line.begin()+i);
         line = cutSpaces(line);
-
-        std::cout << "Attb name '" << name << "'" << std::endl;
-        std::cout << "Type '" << "Categoric" << "'" << std::endl;
         Attributes attbCAT(name);
         attbCAT.attribute = split(line);
-        for(int i = 0; i < attbCAT.attribute.size(); i++){
-            std::cout << "   -'" << attbCAT.attribute[i] << "'" << std::endl;
-        }
-        std::cout << "\n";
         attributesList.push_back(attbCAT);
+    }
+    return true;
+}
+
+bool Data::addAttributeData(std::string line, int index){
+    std::vector<std::string> attbData;
+    attbData = split(line);
+
+    if(attbData.size() != attributesList.size()){
+        std::cout << "ERRO, NÃO EXISTEM REGISTROS PARA OS "<<attributesList.size() <<" CAMPOS."<< std::endl;
+        exit(0);
+    }
+
+    ObjectRow tempObj(index);
+
+    double tempNum;
+    for(size_t i = 0; i < attbData.size(); i++){
+        if(isNumeric(i)){
+            AttributeNum AttbNumTemp(attributesList[i].name, i);
+            tempNum = stringToDouble(attbData[i]);
+            AttbNumTemp.attributeNum = tempNum;
+
+            tempObj.collumnsNUM.push_back(AttbNumTemp);
+        } else {
+            if(attbData[i] == "?"){
+
+            }
+            AttributeCat AttbCatTemp(attributesList[i].name, i);
+            if(validCatData(attbData[i])){
+                AttbCatTemp.attributeCat = attbData[i];
+                tempObj.collumnsCAT.push_back(AttbCatTemp);
+            } else {
+                std::cout << "ERRO, REGISTROS NÃO FUNCIONANDO CORRETAMENTE" << std::endl;
+                exit(0);
+            }
+            
+        }
+    }
+    objects.push_back(tempObj);
+    return true;
+}
+
+double Data::stringToDouble(std::string str){
+    if(hasSpaces(str)){
+        std::cout << "ERRO, REGISTROS NÃO FUNCIONANDO CORRETAMENTE" << std::endl;
+        exit(0);
+    }
+    std::stringstream converter;
+    converter << str;
+    double numeric;
+    converter >> numeric;
+    return numeric;
+}
+
+bool Data::isNumeric(int index){
+    if(attributesList[index].attribute[0] == "Numeric--"){
+        return true;
+    }
+    return false;
+}
+
+bool hasSpaces(std::string str){
+    for(size_t i = 0; i < str.size(); i++){
+        if(str[i] == ' '){
+            return true;
+        }
+    }
+    return false;
+}
+
+bool validCatData(std::string str){
+    if(hasSpaces(str)){
+        if(str[0] == '"' && str[str.size()-1] == '"'){
+            return true;
+        } else {
+            return false;
+        }
     }
     return true;
 }
@@ -99,9 +179,9 @@ bool Data::addAttributeInList(std::string line){
 std::vector<std::string> split(std::string str){
     std::vector<std::string> attbCats;
     int i = 0;
-    while(i < str.size()-1){
+    while(i < str.size()){
         std::string temp;
-        while(str[i] != ',' && i < str.size()-1){
+        while(str[i] != ',' && i < str.size()){
             temp.push_back(str[i]);
             i++;
         }
@@ -117,7 +197,6 @@ std::vector<std::string> split(std::string str){
             }
             }
         }
-        
         attbCats.push_back(temp);
         temp.clear();
         i++;        
@@ -169,4 +248,24 @@ std::string cutScrap(std::string str){
     }
     str.erase(str.begin(), str.begin()+i);
     return str;
+}
+
+void Data::showData(){
+for(size_t i = 0; i < objects.size(); i++){
+    for(size_t j = 0; j < attributesList.size(); j++){
+        int k = 0;
+        if(isNumeric(j)){
+            while(objects[i].collumnsNUM[k].indexColN != j){
+                k++;
+            }
+            std::cout << objects[i].collumnsNUM[k].attributeNum << ", ";
+        } else {
+            while(objects[i].collumnsCAT[k].indexColC != j){
+                k++;
+            }
+            std::cout << objects[i].collumnsCAT[k].attributeCat << ", ";
+        }
+    }
+    std::cout << std::endl;
+}
 }

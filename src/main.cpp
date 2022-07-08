@@ -7,5 +7,8 @@ int main(){
 
     test.startReadFiles();
     
+    test.showData();
+    
+    
     return 0;
 }
