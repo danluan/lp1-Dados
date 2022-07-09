@@ -1,43 +1,31 @@
-#include "Data.hpp"
+#include "../lib/Data.hpp"
 #include <iostream>
 #include <fstream>
 #include <sstream>
 
-AttributeNum::AttributeNum(std::string name_, int index_){
-    indexColN = index_;
-    name = name_;
-}
-ObjectRow::ObjectRow(int index_){
-    indexRow = index_;
-}
-AttributeCat::AttributeCat(std::string name_, int index_){
-    indexColC = index_;
-    name = name_;
-}
-Attributes::Attributes(std::string name_){
-    name = name_;
-}
-void Data::startReadFiles(){
+void Data::readFiles(std::string directory){
 
     std::ifstream file;
-    file.open("test.txt"); //Mudar diretório
+    file.open(directory);
 
     if(file.is_open()){
         std::string line;
         int row = 1;
+        int stage = 0; //0 - procurando @info; 1 - Adicionando atributos; 2 - Lendo @data
 
         while(line != "@info" && !file.eof()){
             getline(file, line);
             row++;
         }
         if(file.eof()){
-            std::cout << "ERROR: PROGRAMA ENCERRADO\n'@info' NÃO FOI ENCONTRADO.\n";
+            std::cout << "ERROR: PROGRAMA ENCERRADO.\n'@info' NÃO FOI ENCONTRADO.\n";
             return;
         }
+        stage = 1;
 
         char pointer;
         std::string buffer;
-        while(buffer != "@data" && !file.eof()){
+        while(buffer != "@data" && !file.eof() && stage == 1){
             file.get(pointer);
             buffer.push_back(pointer);            
             if(pointer == '\n'){
@@ -59,12 +47,13 @@ void Data::startReadFiles(){
                 }
             }
         }
+        stage = 2;
         getline(file, buffer);
         if(file.eof()){
             std::cout << "ERRO C" << row << " - @data not found." << std::endl;
         }
         int indexRow = 0;
-        while(!file.eof()){
+        while(!file.eof() && stage == 2){
             row++;
             getline(file, buffer);
             if(buffer == "\n" || buffer == ""){
@@ -74,10 +63,13 @@ void Data::startReadFiles(){
                 indexRow++;
             } else {
                 std::cout << "ERRO! NÃO EXISTEM REGISTROS PARA OS "<<attributesList.size() <<" CAMPOS NA LINHA "<< row <<"."<< std::endl;
+                std::cout << "ENCERRANDO PROGRAMA..." << std::endl;
                 exit(0);
             }
         }
-        
+        file.close();
+    } else {
+        std::cout << "ERRO! ARQUIVO NÃO ENCONTRADO, ENCERRANDO PROGRAMA..." << std::endl;
     }
 }
 
@@ -112,7 +104,7 @@ bool Data::addAttributeData(std::string line, int index){
     if(attbData.size() != attributesList.size()){
         return false;
     }
-    ObjectRow tempObj(index);
+    Object tempObj(index);
     double tempNum;
     for(size_t i = 0; i < attbData.size(); i++){
         if(isNumeric(i)){
