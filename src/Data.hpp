@@ -44,8 +44,8 @@ public:
 
 class Data{
 public:
-    std::vector<Attributes> attributesList; //List of {CAT, NUM, NUM ... }
-    std::vector<ObjectRow> objects;
+    std::vector<Attributes> attributesList; //Lista que armazena os nomes e os tipos dos atributos, assim como os conjuntos categóricos
+    std::vector<ObjectRow> objects; //Lista dos objetos, cada um possui uma lista de atributos numéricos e categóricos
 
     void startReadFiles();
     bool addAttributeInList(std::string line);
@@ -53,6 +53,8 @@ public:
     bool isNumeric(int index);
 
     void showData();
+    bool validCatData(std::string str, int index);
+    bool lineIsValid(std::string str);
 
     double stringToDouble(std::string str);
 };
@@ -61,4 +63,3 @@ std::string cutSpaces(std::string str);
 std::string cutScrap(std::string str);
 std::vector<std::string> split(std::string str);
 bool hasSpaces(std::string str);
-bool validCatData(std::string str);

@@ -24,7 +24,7 @@ void Data::startReadFiles(){
 
     if(file.is_open()){
         std::string line;
-        int row = 1, col = 0;
+        int row = 1;
 
         while(line != "@info" && !file.eof()){
             getline(file, line);
@@ -47,6 +47,10 @@ void Data::startReadFiles(){
             if(buffer == "@attribute"){
                 buffer.clear();
                 getline(file, buffer);
+                if(!(lineIsValid(buffer))){
+                    std::cout << "ERROR - ATRIBUTO DECLARADO INDEVIDAMENTE NA LINHA "<< row << ".\n";
+                    return;
+                }
                 if(addAttributeInList(buffer)){
                     buffer = "";
                     row++;
@@ -59,16 +63,18 @@ void Data::startReadFiles(){
         if(file.eof()){
             std::cout << "ERRO C" << row << " - @data not found." << std::endl;
         }
-        int index = 0;
+        int indexRow = 0;
         while(!file.eof()){
+            row++;
             getline(file, buffer);
-            
-            if(addAttributeData(buffer, index)){
-                
+            if(buffer == "\n" || buffer == ""){
+                //just ignore
+            } else if(addAttributeData(buffer, indexRow)){
                 buffer.clear();
-                index++;
+                indexRow++;
             } else {
-
+                std::cout << "ERRO! NÃO EXISTEM REGISTROS PARA OS "<<attributesList.size() <<" CAMPOS NA LINHA "<< row <<"."<< std::endl;
+                exit(0);
             }
         }
         
@@ -102,33 +108,28 @@ bool Data::addAttributeInList(std::string line){
 bool Data::addAttributeData(std::string line, int index){
     std::vector<std::string> attbData;
     attbData = split(line);
-
+    
     if(attbData.size() != attributesList.size()){
-        std::cout << "ERRO, NÃO EXISTEM REGISTROS PARA OS "<<attributesList.size() <<" CAMPOS."<< std::endl;
-        exit(0);
+        return false;
     }
-
     ObjectRow tempObj(index);
-
     double tempNum;
     for(size_t i = 0; i < attbData.size(); i++){
         if(isNumeric(i)){
+            if(attbData[i] == "?"){
+                attbData[i] = "-123.457";
+            }
             AttributeNum AttbNumTemp(attributesList[i].name, i);
             tempNum = stringToDouble(attbData[i]);
             AttbNumTemp.attributeNum = tempNum;
-
             tempObj.collumnsNUM.push_back(AttbNumTemp);
         } else {
-            if(attbData[i] == "?"){
-
-            }
             AttributeCat AttbCatTemp(attributesList[i].name, i);
-            if(validCatData(attbData[i])){
+            if(validCatData(attbData[i], i)){
                 AttbCatTemp.attributeCat = attbData[i];
                 tempObj.collumnsCAT.push_back(AttbCatTemp);
             } else {
-                std::cout << "ERRO, REGISTROS NÃO FUNCIONANDO CORRETAMENTE" << std::endl;
-                exit(0);
+                return false;
             }
             
         }
@@ -165,7 +166,20 @@ bool hasSpaces(std::string str){
     return false;
 }
 
-bool validCatData(std::string str){
+bool Data::validCatData(std::string str, int indexCol){
+    if(str == "?"){
+        return true;
+    }
+    bool exists = false;
+    for(size_t i = 0; i < attributesList[indexCol].attribute.size(); i++){
+        if(attributesList[indexCol].attribute[i] == str){
+            exists = true;
+        }
+    }
+    if(exists == false){
+        return false;
+    }
+
     if(hasSpaces(str)){
         if(str[0] == '"' && str[str.size()-1] == '"'){
             return true;
@@ -178,7 +192,7 @@ bool validCatData(std::string str){
 
 std::vector<std::string> split(std::string str){
     std::vector<std::string> attbCats;
-    int i = 0;
+    size_t i = 0;
     while(i < str.size()){
         std::string temp;
         while(str[i] != ',' && i < str.size()){
@@ -188,7 +202,7 @@ std::vector<std::string> split(std::string str){
         
         temp = cutScrap(temp);
         if(temp[0] == '"'){
-            for(int j = 0; j < temp.size(); j++){
+            for(size_t j = 0; j < temp.size(); j++){
             if(temp[j] == ' '){
                 break;
             } else if(j == temp.size()-1){
@@ -215,7 +229,7 @@ std::string cutSpaces(std::string str){
         }  
     }
     str.erase(str.begin()+j+1, str.end());
-    int i = 0;
+    size_t i = 0;
     while(i < str.size()){
         if(str[i] == ' '){
             i++;
@@ -238,7 +252,7 @@ std::string cutScrap(std::string str){
         }  
     }
     str.erase(str.begin()+j+1, str.end());
-    int i = 0;
+    size_t i = 0;
     while(i < str.size()){
         if(str[i] == ' ' || str[i] == '{' || str[i] == '}'){
             i++;
@@ -251,8 +265,9 @@ std::string cutScrap(std::string str){
 }
 
 void Data::showData(){
+    int sizeAttb = attributesList.size();
 for(size_t i = 0; i < objects.size(); i++){
-    for(size_t j = 0; j < attributesList.size(); j++){
+    for(int j = 0; j < sizeAttb; j++){
         int k = 0;
         if(isNumeric(j)){
             while(objects[i].collumnsNUM[k].indexColN != j){
@@ -268,4 +283,28 @@ for(size_t i = 0; i < objects.size(); i++){
     }
     std::cout << std::endl;
 }
+}
+
+bool Data::lineIsValid(std::string str){
+    std::string validate = "numeric";
+    size_t i, j = 0, ver = 0, aux;
+    for(i = 0; i < str.size(); i++){
+        if(str[i] == '{'){
+            return true;
+        }
+        aux = i;
+        while(j < validate.size() && str[i] == validate[j]){
+            ver++;
+            i++;
+            j++;
+        }
+        if(ver == validate.size()){
+            return true;
+        }
+        ver = 0;
+        j = 0;
+        i = aux;
+    }
+    return false;
+
 }
