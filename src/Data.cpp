@@ -2,6 +2,8 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <cstdlib>
+#include <ctime>
 
 void Data::readFiles(std::string directory){
 
@@ -258,23 +260,27 @@ std::string cutScrap(std::string str){
 
 void Data::showData(){
     int sizeAttb = attributesList.size();
-for(size_t i = 0; i < objects.size(); i++){
-    for(int j = 0; j < sizeAttb; j++){
-        int k = 0;
-        if(isNumeric(j)){
-            while(objects[i].collumnsNUM[k].indexColN != j){
-                k++;
+
+    for(size_t i = 0; i < objects.size(); i++){
+        for(int j = 0; j < sizeAttb; j++){
+            int k = 0;
+            if(isNumeric(j)){
+                while(objects[i].collumnsNUM[k].indexColN != j){
+                    k++;
+                }
+                if(objects[i].collumnsNUM[k].attributeNum == UNKNOWK_NUMERIC)
+                    std::cout << "?, ";
+                else
+                    std::cout << objects[i].collumnsNUM[k].attributeNum << ", ";
+            } else {
+                while(objects[i].collumnsCAT[k].indexColC != j){
+                    k++;
+                }
+                std::cout << objects[i].collumnsCAT[k].attributeCat << ", ";
             }
-            std::cout << objects[i].collumnsNUM[k].attributeNum << ", ";
-        } else {
-            while(objects[i].collumnsCAT[k].indexColC != j){
-                k++;
-            }
-            std::cout << objects[i].collumnsCAT[k].attributeCat << ", ";
         }
+        std::cout << std::endl;
     }
-    std::cout << std::endl;
-}
 }
 
 bool Data::lineIsValid(std::string str){
@@ -299,4 +305,30 @@ bool Data::lineIsValid(std::string str){
     }
     return false;
 
+}
+
+void Data::analysisFiles(float P, int C){
+    std::vector<Object> testers; 
+    std::vector<Object> trainers;
+    std::vector<Object> objCopy = objects;
+
+    int numTesters = objects.size()*P;
+    int numTrainers = objects.size()-numTesters;
+    int size = objects.size();
+    srand(time(NULL));
+
+    int randIndex;
+    for(int i = 0; i < numTesters; i++){ // Set the testers
+        randIndex = rand()%size;
+        testers.push_back(objCopy[randIndex]);
+        objCopy.erase(objCopy.begin()+randIndex);
+    }
+        
+    for(int i = 0; i < numTrainers; i++){ // Set the testers
+        trainers.push_back(objCopy[i]);
+    }
+
+
+    //Calculo Dist
+    //Calculo Diff
 }

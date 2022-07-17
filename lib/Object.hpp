@@ -12,6 +12,8 @@ public:
     std::vector<AttributeCat> collumnsCAT;
 
     Object(int index_);
+
+    void showObjects();
 };
 
 #endif
