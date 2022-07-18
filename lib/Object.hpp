@@ -10,8 +10,12 @@ public:
     int indexRow;
     std::vector<AttributeNum> collumnsNUM;
     std::vector<AttributeCat> collumnsCAT;
+    double dist;
 
-    Object(int index_);
+    Object(int index);
+
+    double getNumInIndex(int col);
+    std::string getCatInIndex(int col);
 
     void showObjects();
 };
