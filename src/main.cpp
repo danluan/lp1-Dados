@@ -5,18 +5,20 @@ int main(){
 
     Data test;
     test.readFiles("test.txt");
-    //test.showData();
+    test.showData();
     std::cout << std::endl;
-    float P = 0.35;
-    int C = 2;
+
+    float P {0.35};
+    int C {10};
+    
     test.analysisFiles(P, C);
 
-    /*Data mixed;
-    Data mixedE;
-    Data categoric;
-    Data categoricE;
-    Data numeric;
-    Data numericE;*/
+    //Data mixed;
+    //Data mixedE;
+    //Data categoric;
+    //Data categoricE;
+    //Data numeric;
+    //Data numericE;
 
     //mixed.readFiles("../samples/Mixed.txt");
     //mixedE.readFiles("../samples/Mixed_-_Error_L7C25.txt");
@@ -31,6 +33,8 @@ int main(){
     //categoricE.showData();
     //numeric.showData();
     //numericE.showData();
+
+    //categoric.analysisFiles(0.35, 5);
     
     return 0;
 }
