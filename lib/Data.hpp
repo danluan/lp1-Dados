@@ -26,6 +26,7 @@ public:
     double distFunc(Object tester, Object trainer);
 
     void showData();
+    void showOutput();
 
     double getNumValueInIndex(int row, int col);
     std::string getCatValueInIndex(int row, int col);

@@ -326,50 +326,56 @@ void Data::analysisFiles(float P, int C){
     srand(time(NULL));
     
     int randIndex;
-    for(int i = 0; i < numTesters; i++){ // Set the testers
+    for(size_t i = 0; i < numTesters; i++){ // Set the testers
         randIndex = rand()%objCopy.size();
         testersData.push_back(objCopy[randIndex]);
         classDistReal.push_back(objCopy[randIndex].collumnsCAT[objCopy[randIndex].collumnsCAT.size()-1].attributeCat);
         objCopy.erase(objCopy.begin()+randIndex);
     }
-    for(int i = 0; i < numTrainers; i++){ // Set the trainers
+    for(size_t i = 0; i < numTrainers; i++){ // Set the trainers
         trainersData.push_back(objCopy[i]);
     }
 
     testersData.shrink_to_fit();
     trainersData.shrink_to_fit();
 
-    for(size_t i = 0; i < testersData.size(); i++){
+    for(size_t i = 0; i < testersData.size(); i++){ // Compare all trainers to each tester
         for(size_t j = 0; j < trainersData.size(); j++){
             trainersData[j].dist = distFunc(testersData[i], trainersData[j]);
         }
-        sortTrainers(trainersData);
+        sortTrainers(trainersData); //sort the trainers to 
         classDistCalc.push_back(setDistClass(trainersData, C));
     }
+    //Set the output matrix
     std::vector<std::vector<int>> output(attributesList[end].attribute.size(), std::vector<int>(attributesList[end].attribute.size()));
     for(size_t i = 0; i < attributesList[end].attribute.size(); i++){
         for(size_t j = 0; j < attributesList[end].attribute.size(); j++){
             output[i][j] = 0;
         }
     }
+    //Set all registers positions
     for(size_t i = 0; i < classDistReal.size(); i++){
         std::pair<int, int> pos = getIndexOutput(classDistReal[i], classDistCalc[i]);
+        //first - class calc;
+        //second - class real;
         output[pos.first][pos.second] += 1;
     }
-    std::cout << "\n  ";
-    for(size_t i = 0; i < attributesList[end].attribute.size(); i++){
-        std::cout << attributesList[end].attribute[i] << "  ";
-    }
+
+    std::cout << "P = " << P*100 << "%\n";
+    std::cout << "C = " << C << "\n";
+    std::cout << "Testers = " << numTesters << "\n";
+    std::cout << "Trainers = " << numTrainers << "\n";
+    std::cout << "Output:\n";
     std::cout << "\n";
     for(size_t i = 0; i < attributesList[end].attribute.size(); i++){
-        std::cout << attributesList[end].attribute[i] << " ";
         for(size_t j = 0; j < attributesList[end].attribute.size(); j++){
-             std::cout << output[i][j] << ", ";
+            std::cout << output[i][j] << ", ";
         }
         std::cout << "\n";
     }
 }
 
+//Calcula o valor da distancia entre cada objeto
 double Data::distFunc(Object tester, Object trainer){
     double dist = 0;
     int size = attributesList.size()-1;
@@ -396,11 +402,9 @@ double Data::distFunc(Object tester, Object trainer){
     return dist;
 }
 
+//Recebe uma posição ClassXClass e retorna o indice na matriz de saída
 std::pair<int, int> Data::getIndexOutput(std::string classReal, std::string classCalc){
-    //left = real_index
-    //right = calc_index
     const size_t end = attributesList.size()-1;
-
     int k = 0;
     while(attributesList[end].attribute[k] != classReal)
         k++;
@@ -409,11 +413,11 @@ std::pair<int, int> Data::getIndexOutput(std::string classReal, std::string clas
     while(attributesList[end].attribute[l] != classCalc)
         l++;
     
-
-    return { k, l };
+    return { l, k };
     
 }
 
+//Ordena os objetos da menor distancia até a maior
 void sortTrainers(std::vector<Object> &objList){
     int size = objList.size();
     int i, j; 
@@ -424,12 +428,14 @@ void sortTrainers(std::vector<Object> &objList){
     
 }
 
+//Troca dois objetos de posição em um vetor. Utilizado para o sortTrainers
 void swapObject(Object &obj1, Object &obj2){
     Object temp = obj1;
     obj1 = obj2;
     obj2 = temp;
 }
 
+//Retorna qual a classe mais frequente dos C primeiros objetos. Em caso de empate, será utilizada a ultima classe acessada
 std::string Data::setDistClass(std::vector<Object> trainers, int C){
     std::vector<std::string> selected;
     size_t end = attributesList.size()-1;
@@ -441,13 +447,15 @@ std::string Data::setDistClass(std::vector<Object> trainers, int C){
     int tempCount = 0;
     int max = 0;
     int maxIndex = 0;
-    for(size_t i = 0; i < attributesList[end].attribute.size(); i++){
-        
-        tempCount = std::count(selected.begin(), selected.end(), attributesList[end].attribute[i]);
+    
+    int index = 0;
+    for(auto i : selected){
+        tempCount = std::count(selected.begin(), selected.end(), i);
         count.push_back(tempCount);
         if(tempCount >= max){
-            maxIndex = i;
+            maxIndex = index;
         }
+        index++;
     }
     
     return selected[maxIndex];

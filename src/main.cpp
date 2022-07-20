@@ -4,12 +4,12 @@
 int main(){
 
     Data test;
-    test.readFiles("test.txt");
+    test.readFiles("../samples/Numeric.txt");
     test.showData();
     std::cout << std::endl;
 
-    float P {0.35};
-    int C {10};
+    float P {0.20};
+    int C {3};
     
     test.analysisFiles(P, C);
 

@@ -5,3 +5,5 @@ all:
 c:
 	g++ -Wall -o main *.cpp
 	./main
+g:
+	g++ -g -Wall -o main *.cpp
