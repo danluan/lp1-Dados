@@ -4,7 +4,7 @@
 int main(){
 
     Data test;
-    test.readFiles("../samples/Numeric.txt");
+    test.readFiles("../samples/Numeric.tx");
     test.showData();
     std::cout << std::endl;
 

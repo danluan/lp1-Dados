@@ -32,7 +32,7 @@ void Data::readFiles(std::string directory){
         }
         if(file.eof()){
             std::cout << "ERROR: PROGRAMA ENCERRADO.\n'@info' NÃO FOI ENCONTRADO.\n";
-            return;
+            exit(0);
         }
         stage = 1;
 
@@ -83,6 +83,7 @@ void Data::readFiles(std::string directory){
         file.close();
     } else {
         std::cout << "ERRO! ARQUIVO NÃO ENCONTRADO, ENCERRANDO PROGRAMA..." << std::endl;
+        exit(0);
     }
 }
 
@@ -145,7 +146,7 @@ bool Data::addAttributeData(std::string line, int index){
 
 double Data::stringToDouble(std::string str){
     if(hasSpaces(str)){
-        std::cout << "ERRO, REGISTROS NÃO FUNCIONANDO CORRETAMENTE" << std::endl;
+        std::cout << "ERRO, REGISTROS NÃO ESTÃO FUNCIONANDO CORRETAMENTE" << std::endl;
         exit(0);
     }
     std::stringstream converter;
