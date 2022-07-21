@@ -1,36 +1,13 @@
-# Trabalho - Arquivos
+# Trabalho 3 - Dados
+Feito por [Daniel Luan Lourenço de Lima](https://github.com/DanieLuan).
 
-## Instruções:
-- A atividade é individual e será verificado plágio;
-- A implementação deve usar a notação de classes vista em aula;
-- É possível consultar, porém, não troque informações com os colegas;
-- Submeta o link repositório do GitHub Classroom na tarefa do SIGAA.
+Trabalho final da disciplina de Linguagem de Programação I. A atividade consiste em fazer uma aplicação que leia um arquivo e salve suas informações numa estrutura de dados para que seja possível interpretar e analisar esses dados.
 
-## Aplicação
+# Funcionamento
 
-O trabalho consiste em desenvolver uma aplicação no contexto de análise dados. Tais aplicações são conhecidas por extrair informações de um conjunto de dado que pode estar armazenados num banco de dados ou em um arquivo estruturado. Em nosso trabalho, os dados estarão num arquivo de texto simples com dados estruturados.
-
-Os dados podem ser representados por uma tabela em que cada linha representa um registro de informação e cada coluna representa um dos campos do registro. Os campos podem ser de apenas dois tipos: informações numéricas ou categóricas. As informações numéricas, como o nome sugere, representa valores reais e as informações categóricas representam valores discretos num conjunto pré-definido. O objetivo da aplicação consiste em recuperar essas informações de um arquivo de texto e utilizá-las num algoritmo de análise. A próxima seção descreve a estrutura do arquivo e a segunda seção descreve o algoritmo de análise que deve ser desenvolvido.
-
-### Formato do Arquivo
-
-O arquivo é estruturado em duas seções. A primeira seção inicia com a palavra "@info" e deve ser a primeira linha do arquivo. As demais n linhas iniciando com a palavra "@attribute" determinam os tipos de informações de cada coluna da tabela de dados na mesma ordem de especificação, isto é, a primeira linha determina o tipo de dados da primeira coluna, a segunda linha determina o tipo de dados da segunda linha, e assim por diante. Logo, a quantidade de linha com "@attribute" determina a quantidade de colunas da tabela.
-
-A palavra "@attribute" é sempre seguida por um nome, isto é, o nome da coluna, isto é, uma palavra formada apenas por letras, números ou subtraço. Por sua vez, o nome é seguido pelo tipo de dado ambos separados por um ou mais espaços. O tipo de dado pode representado pela palavra "numeric" ou então pela representação de um conjunto, isto é, sequências de ao menos dois textos separados por uma vírgula iniciando pelo caractere '{' e encerrando com o caractere '}'. Os textos podem aparacer entre aspas duplas que são obrigatórias caso a palavra contenham espaços. O texto a seguir apresenta um exemplo da primeira seção do arquivo:
-
-    @info
-    @attribute att1 numeric
-    @attribute    novo_atributo    numeric
-    @attribute exemplo_conj {1  ,    "2", desconhecido   }
-    @attribute complexo        {"valor com espaco", "outro valor"}
-
-No exemplo, a primeira linha determina o início da seção. A segunda linha determina que o primeiro campo dos registros possui o nome "att1" e podem assumir valores reais. A terceira linha corresponde ao segundo campo do registro e possui nome "novo_atributo" que também pode assumir valores numéricos. A duas últimas linhas especificam atributos categóricos, o penúltimo de nome "exemplo_conj" e o último de nome "complexo". Cada um é seguido pela especificação de um conjunto onde cada elemento é um texto. Assim, o terceiro campo dos registros podem assumir somente os valores "1", "2" ou "desconhecido" e nenhum outro. De modo análogo, o último campo só pode assumir os valores "valor com espaco" ou "outro valor".
-
-A segunda seção do arquivo incia por uma linha contendo a palavra "@data" e as demais linhas especificam os registros do arquivo, isto é, cada linha da tabela de dados. Um registro será representado por contendo valores separados por vírgula. Cada registro contém uma quantidade de valores igual à quantidade de campos indicados na seção inicial do arquivo. Assim como nos conjuntos, os valores categóricos podem estar representados entre aspas duplas.
-
-Além disso, pode ocorrer situações que um registro não possui um valor para um determinando campo, por exemplo, o campo não é aplicável para aquele registro, o valor não foi preenchido ou é desconhecido. Nesses caso, o campo terá o caractere '?' e ele não é um valor válido para um dos valores do conjunto. Essa informação também precisa ser representada no sistema.
-
-Logo, usando o exemplo inicial do arquivo, um possível conteúdo seria:
+Inicialmente é necessário ler um arquivo num formato específico para que as informações possam ser traduzidas de modo que o programa consiga interpretar. 
+### Leitura
+Um exemplo de formato do arquivo para ser lido seria
 
     @info
     @attribute att1 numeric
@@ -41,41 +18,49 @@ Logo, usando o exemplo inicial do arquivo, um possível conteúdo seria:
     1, 2, 1, "outro valor"
     5, 5, desconhecido, "valor com espaco"
     0, 0, ?, ?
+Onde:
+- `@info` indica o início do arquivo
+- `@attribute` indica um novo atributo, o qual pode ser **Numeric** ou **Categoric**. O tipo Numeric pode receber qualquer valor real, já o tipo Categoric
+- `@data` indica o inicio da leitura dos dados que irão preencher os campos determinados pelos `@attribute`'s
 
-Observe que esse arquivo representa uma tabela de 3 linhas por 4 colunas. O primeiro registro é formado pelos campos <1, 2, 1, "outro valor">, o segundo registro assume o valor "desconhecido" para o terceiro campo que difere da situação do valor indeterminado representado pelo caractere '?' exemplificado na última linha.
+Cada linha do `@data` é um Objeto, o qual tem um certo numero de atributos.
 
-Desse modo, a aplicação deve conseguir recuperar as informações do arquivo de dados e representá-los num formato adequado para a análise dos dados. Ela também deve analisar se o arquivo está estruturado de modo correto e caso contrário deve indicar a linha e o caractere do primeiro erro como também o que era esperado. Por exemplo, se o arquivo estiver vazio então uma mesagem de erro adequada seria "Erro na linha 0 e caractere 0. Era esperado a palavra "@info"" ou então caso um registro tenha uma quantidade insuficiente de campos "Erro na linha 20 e caractere 30. Fim prematuro do registro. Faltam valores para 4 campos".
+Para isso, o programa foi dividido em três classes principais:
+##### Classe `Attributes`
+A classe `Attributes` serve para salvar quais são os nomes dos atributos e qual seu tipo. Para determinar um tipo de atributo, é usado um vector de strings. Caso esse vector seja de um único elemento, então o atributo é do tipo **NUMERIC**, caso contrário sempre será do tipo **CATEGORIC**.
 
+##### Classe `Object`
+A classe `Object` representa cada objeto à ser adicionado, ela possui uma lista de atributos numéricos e categóricos, além de um valor `dist`, que será usado na parte de análise.
+
+#### Classe `Data`
+A classe `Data` junta as duas classes anteriores, e dessa forma consegue armazenar os atributos e os objetos de forma eficiente, sem perder a precedência de ambos.
 
 ### Análise
 
-Para a análise serão fornecidos um arquivo de dados, uma porcentagem P e um valor inteiro C. O arquivo fornecido representará uma base de dados em que a última coluna é chamada de 'classe' e consiste em um tipo categórico. O objetivo da aplicação é determinar a classe de um registro pode ser determinado pelos registros mais próximo onde a noção de proximidade será determinada de acordo com uma métrica.
+Para realizar a análise, são necessários dois valores arbitrários:
+- P : Percentual de 0 até 1 do número de objetos de teste.
+- C : Número de objetos para calcular um registro.
 
-Assim, a aplicação deve selecionar de modo aleatório uma quantidade de registros equivalente à porcentagem P especificada sobre o total de registros dos dados. A parte selecionada será chamada de 'dados de teste' e a restante de 'dados de treinamento'. Em seguida, para cada um dos registros dos dados de teste a aplicação deve determinar os C registros mais próximos na base de treinamento determinada pela seguinte função:
+Basicamente, serão utilizados duas listas de objetos, uma de *teste* e outra de *treino*. O percentual *P* será o número de quantos objetos do total serão escolhidos como objetos de teste. O Restante será escolhido como objeto de treino.
+Cada objeto de teste será comparado com todos os de treino para calcular a distância entre cada um deles.
+Quando a distância estiver calculada, o programa escolhe os *C* primeiros objetos e determinam a classe que mais aparece entre eles.
+Assim, no final será apresentada uma matriz em que as colunas representam os valores reais dos registros de teste, e as linhas os valores calculados através dos *C* vizinhos mais próximos.
 
-<img src="https://latex.codecogs.com/svg.latex?dist(A,B)=\sum_{i=1}^{n}(diff(A_i,B_i))^2" title="dist(A,B)=\sum_{i=1}^{n}(diff(A_i,B_i))^2" />
+## Compilação
 
-Onde A e B são dois registros da mesma base de dados, contento n campos (excluindo o último campo que é a classe) e diff é uma função que determina a diferença entre os valores de dois campos. Se o campo é do tipo numérico então a função consiste na diferença entre os dois valores e para o tipo categórico a função retorna 1 se os valores diferem e 0 caso sejam iguais. Além disso, pode ocorrer que algum valor Ai seja desconhecido, isto é, seja '?', logo, se algum dos valores é igual à '?' então a função retorna 1.
+Para compilar, pode-se utilizar Makefile e rodar o comando a baixo na pasta principal.
+```
+make all
+```
+Isso gerará o arquivo executável.
+Caso não tenha o Makefile, pode utilizar o comando a baixo que terá o mesmo efeito.
+```
+g++ -Wall -o main main.cpp src/*.cpp
+```
+## Execução
 
-Ao determinar os C registros mais próximos de um registro da base de teste, a aplicação deve calcular qual o valor da classe mais frequente nos C registros e comparar com o valor presente no campo da classe do registro e armazenar essa informação para apresentação na saída de dados.
-
-## Saída de Dados
-
-Para cada instância da base de testes, deve ser apresentado o registro e a classe dos C registros mais próximos. Por fim, deve ser apresentada uma matriz relacionando os valores da classe (coluna) das classes dos registros de teste com a classe determinada pelos seus vizinhos (colunas) como na figura abaixo que considera uma base de dados em que o campo da classe pode assumir três valores {A, B, C}:
-
-| |A|B|C|
-|-|-|-|-|
-|A|3|0|0|
-|B|0|3|1|
-|C|2|0|2|
-
-Na tabela acima, as colunas representam o valor real dos registros no campo classe e as linhas representam os valores determinados pelos vizinhos. Cada valor representa as quantidades de associações, por exemplo, 3 registros da classe A foram associados a classe A pelos seus vizinhos, 1 registro da classe C foi associado a classe B, 2 registros da classe A foram associados a classe C e assim por diante.
-
-## Avaliação
-
-A implementação deve ser entregue até o final do dia 18 de julho e teremos uma entrega parcial até o final do dia 8 de julho em que deve ser submetidos a parte da aplicação responsável pela leitura do arquivo de dados (seção de Formato do Arquivo). Além disso, teremos uma avaliação parcial no dia 12 de julho correspondendo a metade da nota da unidade.
-
-O trabalho será avaliado quanto a modelagem do problema apresentado na linguagem C++, isto é, uso de classes, uso da biblioteca padrão da linguagem C++, manipulação de arquivos e quanto ao uso dos conceitos estudados em estrutura de dados, ou seja, algoritmos de busca, ordenação e estruturas de dados sequenciais.
-
-
-
+Para executar o programa deve-se indicar, além do programa executável, qual o diretório onde o arquivo para leitura se encontra. No caso, três arquivos de exemplo estão no diretório principal para teste, então por exemplo
+```
+./main Numeric.txt
+```
+Caso não coloque argumentos, ele irá rodar o arquivo de teste "Numeric.txt" por padrão.
